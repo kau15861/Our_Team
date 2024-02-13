@@ -2,7 +2,7 @@
  * SYST 17796 Project Base code.
  * Students can modify and extend to implement their game.
  * Harmanpreet Kaur, Muskanpreet Kaur, Harshita, Himanshu Vaidehi Dhamecha
- * 13 Feb 2024
+ * 13 February 2024
  */
 package ca.sheridancollege.project;
 
