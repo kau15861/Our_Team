@@ -15,8 +15,8 @@ import java.util.Collections;
  * HINT: You might want to subclass this more than once.
  * The group of cards has a maximum size attribute which is flexible for reuse.
  *
- * @author dancye
- * @author Paul Bonenfant Jan 2020
+ * Harmanpreet Kaur, Muskanpreet Kaur, Harshita, Himanshu Vaidehi Dhamecha
+ * 13 Feb 2024
  */
 public class GroupOfCards {
 
@@ -57,6 +57,6 @@ public class GroupOfCards {
         this.size = size;
     }
 
-    // Implement other methods as needed for GoFishCard
+    
 }
 

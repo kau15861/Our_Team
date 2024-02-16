@@ -166,14 +166,5 @@ public class GoFishGame extends Game {
         return gameOver;
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the number of players: ");
-        int numPlayers = scanner.nextInt();
-        GoFishGame game = new GoFishGame("Go Fish", numPlayers);
-
-        while (!game.gameOver()) {
-            game.play();
-        }
-    }
+    
 }

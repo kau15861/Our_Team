@@ -14,5 +14,5 @@ public class GoFishCard extends Card {
         return rank + " of " + suit;
     }
 
-    // Implement additional methods or properties as needed for GoFishCard
+  
 }
