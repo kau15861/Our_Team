@@ -13,6 +13,11 @@ public class GoFishCard extends Card {
     public String toString() {
         return rank + " of " + suit;
     }
+    
+    
+   public String getRank() {
+    return rank;
+}
 
   
 }

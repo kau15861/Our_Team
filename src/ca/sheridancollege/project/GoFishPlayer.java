@@ -13,7 +13,8 @@ public class GoFishPlayer extends Player {
     public ArrayList<GoFishCard> getHand() {
         return hand;
     }
-
+  
+    
     
 
     @Override

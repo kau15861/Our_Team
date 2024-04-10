@@ -2,23 +2,26 @@ package ca.sheridancollege.project;
 
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.HashMap;
 
 public class GoFishGame extends Game {
     private GroupOfCards deck;
-    private ArrayList<GoFishPlayer> players;
+    public ArrayList<GoFishPlayer> players;
     private boolean gameOver;
+    private int roundsPlayed;
 
     public GoFishGame(String name, int numPlayers) {
         super(name);
         players = new ArrayList<>();
         deck = new GroupOfCards(52); 
-        initialize_The_Deck();
-        initialize_The_Players(numPlayers);
+        initializeTheDeck();
+        initializeThePlayers(numPlayers);
         handleCards();
         gameOver = false;
+        roundsPlayed = 0;
     }
 
-    private void initialize_The_Deck() {
+    private void initializeTheDeck() {
         String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
         String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
 
@@ -30,7 +33,7 @@ public class GoFishGame extends Game {
         deck.shuffle();
     }
 
-    private void initialize_The_Players(int numPlayers) {
+    private void initializeThePlayers(int numPlayers) {
         for (int i = 1; i <= numPlayers; i++) {
             players.add(new GoFishPlayer("Player " + i));
         }
@@ -48,15 +51,23 @@ public class GoFishGame extends Game {
 
     @Override
     public void play() {
-        for (GoFishPlayer player : players) {
-            having_Turn(player);
-            show_Pairs(player);
-            declareWinner();
+        while (roundsPlayed < 5) {
+            System.out.println("\nRound " + (roundsPlayed + 1) + "\n");
+            for (GoFishPlayer player : players) {
+                if (!gameOver()) {
+                    havingTurn(player);
+                    showPairs(player);
+                } else {
+                    break;
+                }
+            }
+            declareRoundWinner();
+            roundsPlayed++;
         }
-        
+        declareWinner();
     }
 
-    private void having_Turn(GoFishPlayer currentPlayer) {
+    private void havingTurn(GoFishPlayer currentPlayer) {
         System.out.println("Current player: " + currentPlayer.getName());
         System.out.println("Your hand: " + currentPlayer.getHand());
 
@@ -65,19 +76,19 @@ public class GoFishGame extends Game {
         do {
             System.out.println("Enter the rank that you want to ask for: ");
             rankToAskFor = scanner.nextLine();
-        } while (! checking_Rank(rankToAskFor));
+        } while (!checkingRank(rankToAskFor));
 
-        GoFishPlayer otherPlayer =ranked_Player(rankToAskFor, currentPlayer);
+        GoFishPlayer otherPlayer = rankedPlayer(rankToAskFor, currentPlayer);
 
         if (otherPlayer != null) {
-            moving_Cards(currentPlayer, otherPlayer, rankToAskFor);
+            movingCards(currentPlayer, otherPlayer, rankToAskFor);
         } else {
             System.out.println("Go Fish!!!!! Draw a card.....");
-            taking_Card(currentPlayer);
+            takingCard(currentPlayer);
         }
     }
 
-    private boolean checking_Rank(String rank) {
+    public boolean checkingRank(String rank) {
         String[] validRanks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"};
         for (String validRank : validRanks) {
             if (validRank.equalsIgnoreCase(rank)) {
@@ -88,16 +99,16 @@ public class GoFishGame extends Game {
         return false;
     }
 
-    private GoFishPlayer ranked_Player(String rank, GoFishPlayer currentPlayer) {
+    private GoFishPlayer rankedPlayer(String rank, GoFishPlayer currentPlayer) {
         for (GoFishPlayer player : players) {
-            if (!player.equals(currentPlayer) &&  player_with_rank(player, rank)) {
+            if (!player.equals(currentPlayer) && playerWithRank(player, rank)) {
                 return player;
             }
         }
         return null;
     }
 
-    private boolean player_with_rank(GoFishPlayer player, String rank) {
+    public boolean playerWithRank(GoFishPlayer player, String rank) {
         for (GoFishCard card : player.getHand()) {
             if (card.toString().contains(rank)) {
                 return true;
@@ -106,7 +117,7 @@ public class GoFishGame extends Game {
         return false;
     }
 
-    private void moving_Cards(GoFishPlayer currentPlayer, GoFishPlayer otherPlayer, String rank) {
+    private void movingCards(GoFishPlayer currentPlayer, GoFishPlayer otherPlayer, String rank) {
         System.out.println(otherPlayer.getName() + " has the requested rank. Take the cards.........");
 
         ArrayList<GoFishCard> pairs = new ArrayList<>();
@@ -125,7 +136,7 @@ public class GoFishGame extends Game {
         }
     }
 
-    private void taking_Card(GoFishPlayer currentPlayer) {
+    private void takingCard(GoFishPlayer currentPlayer) {
         if (!deck.getCards().isEmpty()) {
             GoFishCard card = deck.getCards().remove(0);
             currentPlayer.getHand().add(card);
@@ -133,7 +144,7 @@ public class GoFishGame extends Game {
         }
     }
 
-    private void show_Pairs(GoFishPlayer currentPlayer) {
+    private void showPairs(GoFishPlayer currentPlayer) {
         ArrayList<GoFishCard> hand = currentPlayer.getHand();
         ArrayList<GoFishCard> pairs = new ArrayList<>();
 
@@ -151,20 +162,55 @@ public class GoFishGame extends Game {
         }
     }
 
+    private void declareRoundWinner() {
+        for (GoFishPlayer player : players) {
+            System.out.println(player.getName() + " made " + countPairs(player) + " pairs in this round.");
+        }
+    }
+
     @Override
     public void declareWinner() {
+        int maxPairs = 0;
+        GoFishPlayer winner = null;
+
         for (GoFishPlayer player : players) {
-            if (player.getHand().isEmpty()) {
-                System.out.println("Game is over! " + player.getName() + " is the winner!");
-                gameOver = true;
-                return;
+            int pairs = countPairs(player);
+            if (pairs > maxPairs) {
+                maxPairs = pairs;
+                winner = player;
             }
         }
+
+        if (maxPairs > 0) {
+            System.out.println("Game is over! " + winner.getName() + " is the winner with " + maxPairs + " pairs!");
+        } else {
+            System.out.println("Game is over! It's a tie!");
+        }
+        gameOver = true;
+    }
+
+    private int countPairs(GoFishPlayer player) {
+        int pairs = 0;
+        ArrayList<GoFishCard> hand = player.getHand();
+
+        // Create a HashMap to count occurrences of each rank
+        HashMap<String, Integer> rankCounts = new HashMap<>();
+
+        // Count occurrences of each rank
+        for (GoFishCard card : hand) {
+            String rank = card.getRank();
+            rankCounts.put(rank, rankCounts.getOrDefault(rank, 0) + 1);
+        }
+
+        // Check if any rank occurs at least twice (forming a pair)
+        for (int count : rankCounts.values()) {
+            pairs += count / 2; // Increase pairs count by the number of sets of two
+        }
+
+        return pairs;
     }
 
     public boolean gameOver() {
         return gameOver;
     }
-
-    
 }
